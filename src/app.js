@@ -3,7 +3,10 @@ const handlebars = require("express-handlebars")
 const {Server} = require("socket.io")
 const { productManager } = require("./products/controller.products.js")
 const router = require("./routes/index.js")
-const port = 8080
+const {port}= require("../config/server.config")
+const mongoose = require("mongoose")
+const dbConnect = require("../db")
+
 
 const app = express();
 
@@ -19,6 +22,8 @@ app.set ("view engine","handlebars")
 
 
 router(app)
+
+dbConnect()
 
 
 const httpServer = app.listen(port, ()=>{

@@ -1,57 +1,93 @@
 
-const {Router} = require("express")
+const { Router } = require("express")
 
 const router = Router()
 
-const ProductManager = require("../class/ProductManager")
+const ProductManager = require("../dao/ProductManager.dao")
 
-const productManager = new ProductManager(process.cwd()+"/src/files/productsBase.json")
+const productManager = new ProductManager(process.cwd() + "/src/files/productsBase.json")
+
+const Products = require("../dao/models/products.models")
 
 
+router.post("/", async (req, res) => {
+    try{
+    const { title, code, description, price, thumbnail, stock, category } = req.body
 
-router.get("/",async(req,res)=>{
-    const {limit} = req.query
-    
-    const products = await productManager.getProduct()
+    const newProduct = {
+        title,
+        code,
+        description,
+        price,
+        thumbnail,
+        stock,
+        category
+    }
 
-    const seleccion = limit ? products.slice(0, limit) : products
+    const product = await Products.create(newProduct)
 
-    res.json(seleccion)
-})
-router.get("/:id", async(req,res)=>{
-
-    const {id} = req.params
-    
-    
-    const products = await productManager.getProductById(id)
-
-    res.json({products})
-
-})
-
-router.post("/",async(req,res)=>{
-    
-    const prod  = await productManager.addProduct(req.body);
-    res.json(prod);
+    res.json(product);
     vinculoSocket();
+    } catch (error) {
+        res.status(400).json({error: 'Error in request'})
+        console.log({ error })
+    }  
+})
+
+router.get("/", async (req, res) => {
+    try{
+    const { limit } = req.query
+
+    const products = await Products.find().limit(limit)
+    res.json(products)
+    }
+    catch (error) {
+        res.status(400).json({error: 'Error in request'})
+        console.log({ error })
+    }
+})
+
+router.get("/:id", async (req, res) => {
+    try{
+    const { id } = req.params
+
+    const products = await Products.findById(id)
+
+    res.json({ products })
+    }
+    catch (error) {
+        res.status(400).json({error: 'Error in request'})
+        console.log({ error })
+    }
 
 })
 
-router.patch("/:id",async(req,res)=>{
-    const {id} = req.params;
-    const dataUpdate = req.body;
-    const prodUpdate = await productManager.updateProductById(id,dataUpdate);
-    res.json(prodUpdate)
+router.patch("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const dataUpdate = req.body;
+        const prodUpdate = await Products.findByIdAndUpdate(id, dataUpdate, { returnDocument: "after" });
+        res.json(prodUpdate)
+    }
+    catch (error) {
+        res.status(400).json({error: 'Error in request'})
+        console.log({ error })
+    }
 
 })
 
-router.delete("/:id",async(req,res)=>{
-    const {id} = req.params;
-    
-    const prodDelete = await productManager.deleteProductById(id);
+router.delete("/:id", async (req, res) => {
+    try{const { id } = req.params;
+
+    const prodDelete = await Products.findByIdAndDelete(id);
     res.json(prodDelete)
+    } catch(error){
+        res.status(400).json({error: 'Error in request'})
+        console.log({ error })
+    }
 
 })
+
 
 const vinculoSocket =async()=>{
     const products = await productManager.getProduct();
@@ -60,4 +96,4 @@ const vinculoSocket =async()=>{
 
 
 
-module.exports = {router,productManager}
+module.exports = { router, productManager }
