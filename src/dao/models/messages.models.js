@@ -3,7 +3,7 @@ const mongoose= require("mongoose")
 const collectionName = "message"
 
 const collectionSchema = new mongoose.Schema({
-    usuario:{
+    user:{
         type:String,
         require: true
     },
@@ -11,7 +11,7 @@ const collectionSchema = new mongoose.Schema({
         type:String,
         require: true
     } 
-},{timestamps:true})
+})
 
 const Messages = mongoose.model(collectionName,collectionSchema)
 

@@ -9,7 +9,7 @@ router.get('/chat', async (req, res) => {
         res.render('chat.handlebars', {
             chats,
             title: 'Chat',
-            style: 'Chat.css'
+            style: 'style.css'
         })
     } catch (error) {
         console.log(error)

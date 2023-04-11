@@ -6,6 +6,8 @@ const router = require("./routes/index.js")
 const {port}= require("../config/server.config")
 const mongoose = require("mongoose")
 const dbConnect = require("../db")
+const Products = require("../src/dao/models/products.models")
+const Messages = require("../src/dao/models/messages.models")
 
 
 const app = express();
@@ -32,7 +34,21 @@ const httpServer = app.listen(port, ()=>{
 
 const io = new Server(httpServer)
 
-io.on("connection", async socket=>{
-    const products = await productManager.getProduct()
-    socket.emit("productTiempoReal",{products})
+
+io.on('connection', async socket => {
+    try {
+        const products = await Products.find()
+        socket.emit('productTiempoReal', { products })
+    } catch (error) {
+        socket.emit('productTiempoReal', {error: 'Error in Request'})
+    }
+    
+    socket.on('chat', async msg => {
+        try {
+            const message = await Messages.create(msg)
+            io.emit('chat', {message})
+        } catch (error) {
+            console.log(error)
+        }
+    })
 })
