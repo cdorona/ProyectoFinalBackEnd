@@ -1,6 +1,7 @@
 
 const { Router } = require("express")
 
+
 const router = Router()
 
 const ProductManager = require("../dao/ProductManager.dao")
@@ -34,18 +35,50 @@ router.post("/", async (req, res) => {
     }  
 })
 
-router.get("/", async (req, res) => {
-    try{
-    const { limit } = req.query
+router.get('/', async (req, res) => {
+    try {
+        const { limit = 10, page = 1, query = '', sort = 'asc' } = req.query
+        
+        const pQuery = {
+            category: {
+                $regex: query,
+                $options: 'i'
+            }
+        }
 
-    const products = await Products.find().limit(limit)
-    res.json(products)
-    }
-    catch (error) {
-        res.status(400).json({error: 'Error in request'})
+        const pOptions = {
+            limit,
+            page,
+            sort: {
+                price: sort
+            }
+        }
+
+        const products = await Products.paginate(pQuery, pOptions)
+        const { docs: payload, totalPages, prevPage, nextPage, page : npage, hasPrevPage, hasNextPage } = products
+        
+
+        const resObj = {
+            status: 'success',
+            payload,
+            totalPages, 
+            prevPage, 
+            nextPage, 
+            npage, 
+            hasPrevPage, 
+            hasNextPage,
+            prevLink: hasPrevPage ? `http://localhost:8080/api/products?limit=${limit}&page=${prevPage}&query=${query}&sort=${sort}` : null,
+            nextLink: hasNextPage ? `http://localhost:8080/api/products?limit=${limit}&page=${nextPage}&query=${query}&sort=${sort}` : null
+        }
+        
+        res.json(resObj)
+
+    } catch (error) {
+        res.status(400).json({ error: 'Error in request' })
         console.log({ error })
     }
 })
+
 
 router.get("/:id", async (req, res) => {
     try{
