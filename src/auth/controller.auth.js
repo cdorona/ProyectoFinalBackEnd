@@ -8,14 +8,14 @@ router.post('/', async (req, res) => {
     const { email, password } = req.body
 
     const user = await Users.findOne({ email })
-    console.log(user)
+    
     if (!user)
       return res.status(400).json({
         status: 'error',
         error: 'El usuario y la contraseña no coincide',
       })
 
-    if (user.password !== password)
+    if (user.password != password)
       return res.status(400).json({
         status: 'error',
         error: 'El usuario y la contraseña no coincide',
@@ -25,6 +25,7 @@ router.post('/', async (req, res) => {
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
+      role: user.role,
     }
 
     res.json({ status: 'success', message: 'Sesión iniciada' })

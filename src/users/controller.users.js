@@ -15,9 +15,10 @@ router.post('/', async (req, res) => {
       password,
     }
 
-    const user = await Users.create(newUserInfo)
-    res.redirect("/")
+    const existingUser = await Users.findOne({email})
+    if (existingUser) return res.status(400).json({status: 'error', error: 'bad request'})
 
+    const user = await Users.create(newUserInfo)
     res.status(201).json({ status: 'success', message: user })
   } catch (error) {
     console.log(error.message)

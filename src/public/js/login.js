@@ -20,7 +20,10 @@ form.addEventListener('submit', e => {
     method,
     body,
   })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.log(error))
+  .then(res => res.json())
+  .then(data => {
+        console.log(data)
+        document.location.href = '/products'
+    })
+    .catch(err => console.log(err))
 })

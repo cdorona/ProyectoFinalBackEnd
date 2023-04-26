@@ -3,6 +3,29 @@ const router = Router()
 
 const Products = require("../dao/models/products.models")
 const Carts = require("../dao/models/carts.models")
+const privateAccess = require('../middlewares/privateAccess.middleware')
+const publicAccess = require('../middlewares/publicAccess.middleware')
+
+router.get('/', privateAccess, async (req, res) => {
+    const products = await Products.find().lean()
+    console.log(products)
+    res.render('home.handlebars', {
+        products,
+        title: 'Productos',
+        style: 'style.css'
+    })
+})
+
+router.get('/signin', publicAccess, async (req, res) => {
+    res.render('signin.handlebars')
+})
+
+router.get('/login', publicAccess, async (req, res) => {
+    res.render('login.handlebars')
+})
+
+
+
 
 router.get('/products', async (req, res) => {
     const { limit = 2, page = 1, query = '', sort = 'asc' } = req.query
